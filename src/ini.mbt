@@ -34,6 +34,12 @@ pub fn is_section_header(line : String) -> Bool {
   normalized.has_prefix("[") && normalized.has_suffix("]")
 }
 
+/// Extract the section name from a section header.
+pub fn section_name(line : String) -> String {
+  let normalized = normalize_line(line)
+  normalized[1:normalized.length() - 1].trim().to_owned()
+}
+
 test "normalize line trims surrounding whitespace" {
   inspect(normalize_line("  port = 8080  "), content="port = 8080")
 }
@@ -54,4 +60,9 @@ test "section header detection accepts bracketed names" {
   inspect(is_section_header("  [database]  "), content="true")
   inspect(is_section_header("server"), content="false")
   inspect(is_section_header("[broken"), content="false")
+}
+
+test "section name extraction trims brackets and inner whitespace" {
+  inspect(section_name("[server]"), content="server")
+  inspect(section_name("  [ database ]  "), content="database")
 }
