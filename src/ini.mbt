@@ -18,6 +18,18 @@ pub fn is_blank(line : String) -> Bool {
   normalize_line(line) == ""
 }
 
+/// Parsed INI document.
+///
+/// The empty string section stores global entries before any explicit section.
+pub struct IniDocument {
+  sections : Map[String, Map[String, String]]
+}
+
+/// Create an empty INI document.
+pub fn empty() -> IniDocument {
+  { sections: Map([]) }
+}
+
 /// Check whether a line is an INI comment.
 ///
 /// INI files commonly use both `;` and `#` for whole-line comments.
@@ -79,6 +91,11 @@ test "normalize line trims surrounding whitespace" {
 test "blank line detection uses normalized content" {
   inspect(is_blank("   "), content="true")
   inspect(is_blank(" key = value "), content="false")
+}
+
+test "empty document starts without sections" {
+  let doc = empty()
+  inspect(doc.sections.length(), content="0")
 }
 
 test "comment line detection accepts semicolon and hash prefixes" {
