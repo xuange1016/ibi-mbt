@@ -171,6 +171,14 @@ test "parse stores entries under section headers" {
   inspect(doc.get("server", "port").unwrap(), content="8080")
 }
 
+test "parse skips blank lines and whole-line comments" {
+  let doc = parse(
+    "# comment\n\n[server]\n; another comment\nhost = localhost\n\nport = 8080",
+  )
+  inspect(doc.get("server", "host").unwrap(), content="localhost")
+  inspect(doc.get("server", "port").unwrap(), content="8080")
+}
+
 test "document can store entries under a section" {
   let doc = empty()
   doc.set_entry("server", "host", "localhost")
