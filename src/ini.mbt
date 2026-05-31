@@ -47,6 +47,14 @@ fn IniDocument::set_entry(
   entries.set(key, value)
 }
 
+fn IniDocument::apply_entry_line(
+  self : IniDocument,
+  section : String,
+  line : String,
+) -> Unit {
+  self.set_entry(section, entry_key(line), entry_value(line))
+}
+
 /// Get a value from a section.
 pub fn IniDocument::get(self : IniDocument, section : String, key : String) -> String? {
   match self.sections.get(section) {
@@ -140,6 +148,12 @@ test "document can store entries under a section" {
   let doc = empty()
   doc.set_entry("server", "host", "localhost")
   inspect(doc.sections.get("server").unwrap().get("host").unwrap(), content="localhost")
+}
+
+test "document can apply a key-value line" {
+  let doc = empty()
+  doc.apply_entry_line("server", "host = localhost")
+  inspect(doc.get("server", "host").unwrap(), content="localhost")
 }
 
 test "document get returns values from a section" {
