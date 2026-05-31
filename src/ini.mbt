@@ -33,10 +33,13 @@ pub fn empty() -> IniDocument {
 /// Parse INI text into a document.
 pub fn parse(text : String) -> IniDocument {
   let doc = empty()
+  let mut current_section = ""
   for line_view in text.split("\n") {
     let line = line_view.to_owned()
-    if is_entry_line(line) {
-      doc.apply_entry_line("", line)
+    if is_section_header(line) {
+      current_section = section_name(line)
+    } else if is_entry_line(line) {
+      doc.apply_entry_line(current_section, line)
     }
   }
   doc
@@ -160,6 +163,12 @@ test "parse stores global key-value entries" {
   let doc = parse("host = localhost\nport = 8080")
   inspect(doc.get("", "host").unwrap(), content="localhost")
   inspect(doc.get("", "port").unwrap(), content="8080")
+}
+
+test "parse stores entries under section headers" {
+  let doc = parse("[server]\nhost = localhost\nport = 8080")
+  inspect(doc.get("server", "host").unwrap(), content="localhost")
+  inspect(doc.get("server", "port").unwrap(), content="8080")
 }
 
 test "document can store entries under a section" {
