@@ -49,6 +49,29 @@ pub fn is_entry_line(line : String) -> Bool {
   (normalized.contains("=") || normalized.contains(":"))
 }
 
+fn entry_separator_index(line : String) -> Int {
+  match (line.find("="), line.find(":")) {
+    (Some(eq), Some(colon)) => if eq < colon { eq } else { colon }
+    (Some(eq), None) => eq
+    (None, Some(colon)) => colon
+    (None, None) => abort("entry line must contain '=' or ':'")
+  }
+}
+
+/// Extract the key from a key-value entry line.
+pub fn entry_key(line : String) -> String {
+  let normalized = normalize_line(line)
+  let index = entry_separator_index(normalized)
+  normalized[:index].trim().to_owned()
+}
+
+/// Extract the value from a key-value entry line.
+pub fn entry_value(line : String) -> String {
+  let normalized = normalize_line(line)
+  let index = entry_separator_index(normalized)
+  normalized[index + 1:].trim().to_owned()
+}
+
 test "normalize line trims surrounding whitespace" {
   inspect(normalize_line("  port = 8080  "), content="port = 8080")
 }
@@ -81,4 +104,11 @@ test "entry line detection accepts equals and colon separators" {
   inspect(is_entry_line("port: 8080"), content="true")
   inspect(is_entry_line("[server]"), content="false")
   inspect(is_entry_line("; host = localhost"), content="false")
+}
+
+test "entry key and value extraction trims both sides" {
+  inspect(entry_key("host = localhost"), content="host")
+  inspect(entry_value("host = localhost"), content="localhost")
+  inspect(entry_key(" port : 8080 "), content="port")
+  inspect(entry_value(" port : 8080 "), content="8080")
 }
