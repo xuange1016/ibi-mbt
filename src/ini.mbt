@@ -40,6 +40,15 @@ pub fn section_name(line : String) -> String {
   normalized[1:normalized.length() - 1].trim().to_owned()
 }
 
+/// Check whether a line is a key-value entry.
+pub fn is_entry_line(line : String) -> Bool {
+  let normalized = normalize_line(line)
+  !is_blank(normalized) &&
+  !is_comment(normalized) &&
+  !is_section_header(normalized) &&
+  (normalized.contains("=") || normalized.contains(":"))
+}
+
 test "normalize line trims surrounding whitespace" {
   inspect(normalize_line("  port = 8080  "), content="port = 8080")
 }
@@ -65,4 +74,11 @@ test "section header detection accepts bracketed names" {
 test "section name extraction trims brackets and inner whitespace" {
   inspect(section_name("[server]"), content="server")
   inspect(section_name("  [ database ]  "), content="database")
+}
+
+test "entry line detection accepts equals and colon separators" {
+  inspect(is_entry_line("host = localhost"), content="true")
+  inspect(is_entry_line("port: 8080"), content="true")
+  inspect(is_entry_line("[server]"), content="false")
+  inspect(is_entry_line("; host = localhost"), content="false")
 }
