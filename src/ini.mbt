@@ -18,6 +18,14 @@ pub fn is_blank(line : String) -> Bool {
   normalize_line(line) == ""
 }
 
+/// Check whether a line is an INI comment.
+///
+/// INI files commonly use both `;` and `#` for whole-line comments.
+pub fn is_comment(line : String) -> Bool {
+  let normalized = normalize_line(line)
+  normalized.has_prefix(";") || normalized.has_prefix("#")
+}
+
 test "normalize line trims surrounding whitespace" {
   inspect(normalize_line("  port = 8080  "), content="port = 8080")
 }
@@ -25,4 +33,10 @@ test "normalize line trims surrounding whitespace" {
 test "blank line detection uses normalized content" {
   inspect(is_blank("   "), content="true")
   inspect(is_blank(" key = value "), content="false")
+}
+
+test "comment line detection accepts semicolon and hash prefixes" {
+  inspect(is_comment("; comment"), content="true")
+  inspect(is_comment("  # comment"), content="true")
+  inspect(is_comment("host = localhost"), content="false")
 }
