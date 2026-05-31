@@ -55,6 +55,19 @@ pub fn IniDocument::get(self : IniDocument, section : String, key : String) -> S
   }
 }
 
+/// Get a value from a section, or return a default when it is missing.
+pub fn IniDocument::get_or(
+  self : IniDocument,
+  section : String,
+  key : String,
+  default : String,
+) -> String {
+  match self.get(section, key) {
+    Some(value) => value
+    None => default
+  }
+}
+
 /// Check whether a line is an INI comment.
 ///
 /// INI files commonly use both `;` and `#` for whole-line comments.
@@ -135,6 +148,13 @@ test "document get returns values from a section" {
   inspect(doc.get("server", "host").unwrap(), content="localhost")
   inspect(doc.get("server", "missing") is None, content="true")
   inspect(doc.get("missing", "host") is None, content="true")
+}
+
+test "document get_or returns defaults for missing values" {
+  let doc = empty()
+  doc.set_entry("server", "host", "localhost")
+  inspect(doc.get_or("server", "host", "127.0.0.1"), content="localhost")
+  inspect(doc.get_or("server", "port", "8080"), content="8080")
 }
 
 test "comment line detection accepts semicolon and hash prefixes" {
