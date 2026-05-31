@@ -26,6 +26,14 @@ pub fn is_comment(line : String) -> Bool {
   normalized.has_prefix(";") || normalized.has_prefix("#")
 }
 
+/// Check whether a line looks like an INI section header.
+///
+/// A section header starts with `[` and ends with `]`, such as `[server]`.
+pub fn is_section_header(line : String) -> Bool {
+  let normalized = normalize_line(line)
+  normalized.has_prefix("[") && normalized.has_suffix("]")
+}
+
 test "normalize line trims surrounding whitespace" {
   inspect(normalize_line("  port = 8080  "), content="port = 8080")
 }
@@ -39,4 +47,11 @@ test "comment line detection accepts semicolon and hash prefixes" {
   inspect(is_comment("; comment"), content="true")
   inspect(is_comment("  # comment"), content="true")
   inspect(is_comment("host = localhost"), content="false")
+}
+
+test "section header detection accepts bracketed names" {
+  inspect(is_section_header("[server]"), content="true")
+  inspect(is_section_header("  [database]  "), content="true")
+  inspect(is_section_header("server"), content="false")
+  inspect(is_section_header("[broken"), content="false")
 }
