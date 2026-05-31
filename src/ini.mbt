@@ -47,6 +47,14 @@ fn IniDocument::set_entry(
   entries.set(key, value)
 }
 
+/// Get a value from a section.
+pub fn IniDocument::get(self : IniDocument, section : String, key : String) -> String? {
+  match self.sections.get(section) {
+    Some(entries) => entries.get(key)
+    None => None
+  }
+}
+
 /// Check whether a line is an INI comment.
 ///
 /// INI files commonly use both `;` and `#` for whole-line comments.
@@ -119,6 +127,14 @@ test "document can store entries under a section" {
   let doc = empty()
   doc.set_entry("server", "host", "localhost")
   inspect(doc.sections.get("server").unwrap().get("host").unwrap(), content="localhost")
+}
+
+test "document get returns values from a section" {
+  let doc = empty()
+  doc.set_entry("server", "host", "localhost")
+  inspect(doc.get("server", "host").unwrap(), content="localhost")
+  inspect(doc.get("server", "missing") is None, content="true")
+  inspect(doc.get("missing", "host") is None, content="true")
 }
 
 test "comment line detection accepts semicolon and hash prefixes" {
