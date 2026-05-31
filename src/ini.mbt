@@ -96,6 +96,14 @@ pub fn IniDocument::has_section(self : IniDocument, section : String) -> Bool {
   self.sections.contains(section)
 }
 
+/// Check whether a key exists in a section.
+pub fn IniDocument::has_key(self : IniDocument, section : String, key : String) -> Bool {
+  match self.sections.get(section) {
+    Some(entries) => entries.contains(key)
+    None => false
+  }
+}
+
 /// Check whether a line is an INI comment.
 ///
 /// INI files commonly use both `;` and `#` for whole-line comments.
@@ -215,6 +223,13 @@ test "document can report section existence" {
   let doc = parse("[server]\nhost = localhost")
   inspect(doc.has_section("server"), content="true")
   inspect(doc.has_section("database"), content="false")
+}
+
+test "document can report key existence within sections" {
+  let doc = parse("[server]\nhost = localhost")
+  inspect(doc.has_key("server", "host"), content="true")
+  inspect(doc.has_key("server", "port"), content="false")
+  inspect(doc.has_key("database", "host"), content="false")
 }
 
 test "comment line detection accepts semicolon and hash prefixes" {
