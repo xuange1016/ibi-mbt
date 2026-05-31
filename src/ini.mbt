@@ -109,6 +109,14 @@ pub fn IniDocument::section_names(self : IniDocument) -> Array[String] {
   self.sections.keys().collect()
 }
 
+/// Return keys in a section in insertion order.
+pub fn IniDocument::keys(self : IniDocument, section : String) -> Array[String] {
+  match self.sections.get(section) {
+    Some(entries) => entries.keys().collect()
+    None => []
+  }
+}
+
 /// Check whether a line is an INI comment.
 ///
 /// INI files commonly use both `;` and `#` for whole-line comments.
@@ -243,6 +251,15 @@ test "document can list section names" {
   inspect(names.length(), content="2")
   inspect(names[0], content="server")
   inspect(names[1], content="database")
+}
+
+test "document can list keys within a section" {
+  let doc = parse("[server]\nhost = localhost\nport = 8080")
+  let keys = doc.keys("server")
+  inspect(keys.length(), content="2")
+  inspect(keys[0], content="host")
+  inspect(keys[1], content="port")
+  inspect(doc.keys("missing").length(), content="0")
 }
 
 test "comment line detection accepts semicolon and hash prefixes" {
