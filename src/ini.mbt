@@ -30,6 +30,18 @@ pub fn empty() -> IniDocument {
   { sections: Map([]) }
 }
 
+/// Parse INI text into a document.
+pub fn parse(text : String) -> IniDocument {
+  let doc = empty()
+  for line_view in text.split("\n") {
+    let line = line_view.to_owned()
+    if is_entry_line(line) {
+      doc.apply_entry_line("", line)
+    }
+  }
+  doc
+}
+
 fn IniDocument::set_entry(
   self : IniDocument,
   section : String,
@@ -142,6 +154,12 @@ test "blank line detection uses normalized content" {
 test "empty document starts without sections" {
   let doc = empty()
   inspect(doc.sections.length(), content="0")
+}
+
+test "parse stores global key-value entries" {
+  let doc = parse("host = localhost\nport = 8080")
+  inspect(doc.get("", "host").unwrap(), content="localhost")
+  inspect(doc.get("", "port").unwrap(), content="8080")
 }
 
 test "document can store entries under a section" {
