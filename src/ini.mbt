@@ -30,6 +30,23 @@ pub fn empty() -> IniDocument {
   { sections: Map([]) }
 }
 
+fn IniDocument::set_entry(
+  self : IniDocument,
+  section : String,
+  key : String,
+  value : String,
+) -> Unit {
+  let entries = match self.sections.get(section) {
+    Some(existing) => existing
+    None => {
+      let created : Map[String, String] = Map([])
+      self.sections.set(section, created)
+      created
+    }
+  }
+  entries.set(key, value)
+}
+
 /// Check whether a line is an INI comment.
 ///
 /// INI files commonly use both `;` and `#` for whole-line comments.
@@ -96,6 +113,12 @@ test "blank line detection uses normalized content" {
 test "empty document starts without sections" {
   let doc = empty()
   inspect(doc.sections.length(), content="0")
+}
+
+test "document can store entries under a section" {
+  let doc = empty()
+  doc.set_entry("server", "host", "localhost")
+  inspect(doc.sections.get("server").unwrap().get("host").unwrap(), content="localhost")
 }
 
 test "comment line detection accepts semicolon and hash prefixes" {
