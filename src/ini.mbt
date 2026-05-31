@@ -91,6 +91,11 @@ pub fn IniDocument::get_or(
   }
 }
 
+/// Check whether a section exists in the document.
+pub fn IniDocument::has_section(self : IniDocument, section : String) -> Bool {
+  self.sections.contains(section)
+}
+
 /// Check whether a line is an INI comment.
 ///
 /// INI files commonly use both `;` and `#` for whole-line comments.
@@ -204,6 +209,12 @@ test "document get_or returns defaults for missing values" {
   doc.set_entry("server", "host", "localhost")
   inspect(doc.get_or("server", "host", "127.0.0.1"), content="localhost")
   inspect(doc.get_or("server", "port", "8080"), content="8080")
+}
+
+test "document can report section existence" {
+  let doc = parse("[server]\nhost = localhost")
+  inspect(doc.has_section("server"), content="true")
+  inspect(doc.has_section("database"), content="false")
 }
 
 test "comment line detection accepts semicolon and hash prefixes" {
