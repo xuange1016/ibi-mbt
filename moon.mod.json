@@ -1,0 +1,9 @@
+{
+  "name": "user/ini",
+  "version": "0.1.0",
+  "readme": "README.md",
+  "repository": "https://github.com/user/ini-mbt",
+  "license": "Apache-2.0",
+  "keywords": ["ini", "config", "parser", "configuration"],
+  "description": "INI configuration file parser for MoonBit"
+}
